@@ -24,7 +24,14 @@ INSTALLED_APPS = [
     'availability',
     'corsheaders',
     'appointments',
+    'accounts',  # Custom app for user accounts
 ]
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
+AUTH_USER_MODEL = 'accounts.User'
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
