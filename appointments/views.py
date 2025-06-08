@@ -11,6 +11,7 @@ from availability.models import AvailabilitySlot
 from django.db.models import Q
 
 
+
 class AppointmentListCreateView(generics.ListCreateAPIView):
     queryset = Appointment.objects.all()
     serializer_class = AppointmentSerializer
@@ -67,3 +68,4 @@ class PatientAppointmentsView(generics.ListAPIView):
             return Appointment.objects.filter(patient=patient)
         except Patient.DoesNotExist:
             return Appointment.objects.none()
+

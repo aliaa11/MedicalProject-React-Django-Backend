@@ -21,7 +21,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'accounts',  # Custom app for user accounts
-    'doctors',
     'availability',
     'corsheaders',
     'appointments',

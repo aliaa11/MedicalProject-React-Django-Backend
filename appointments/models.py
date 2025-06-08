@@ -1,12 +1,12 @@
 
 # Create your models here.
 from django.db import models
-from doctors.models import Doctor
+from accounts.models import Doctor
 from accounts.models import Patient
 # from patients.models import Patient
 
 class Appointment(models.Model):
-    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name='appointments')
+    doctor = models.ForeignKey('accounts.Doctor', on_delete=models.CASCADE)
     patient = models.ForeignKey(Patient, on_delete=models.SET_NULL, null=True, blank=True, related_name='appointments')
     date = models.DateField()
     time = models.TimeField()

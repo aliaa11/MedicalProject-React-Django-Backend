@@ -3,10 +3,14 @@ from rest_framework.response import Response
 from rest_framework import status, generics
 from rest_framework.generics import RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
-from .serializers import PatientProfileSerializer
+from .serializers import PatientProfileSerializer,DoctorProfileSerializer
 from .models import User, Doctor, Patient, Specialty
 from django.contrib.auth.hashers import make_password
 from django.utils import timezone
+from rest_framework.permissions import AllowAny
+from accounts.models import Doctor
+
+
 
 class RegisterView(APIView):
     def post(self, request):
@@ -66,3 +70,10 @@ class PatientProfileView(RetrieveUpdateDestroyAPIView):
 
     def get_object(self):
         return Patient.objects.get(user=self.request.user)
+    
+    
+class DoctorProfileView(generics.RetrieveAPIView):
+    queryset = Doctor.objects.all()
+    serializer_class = DoctorProfileSerializer
+    permission_classes = [AllowAny]  # خليها حسب اللي يناسبك (مثلاً IsAuthenticated لو عايز حماية)
+    lookup_field = 'id'  # أو 'pk' حسب الـ URL

@@ -1,6 +1,9 @@
 from rest_framework import serializers
 from .models import User, Doctor, Patient
 from appointments.models import Appointment
+from appointments.serializers import AppointmentSerializer
+from availability.serializers import AvailabilitySlotSerializer
+
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
     role = serializers.ChoiceField(choices=[('doctor', 'Doctor'), ('patient', 'Patient')])
@@ -47,9 +50,19 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
 
 class DoctorProfileSerializer(serializers.ModelSerializer):
+    appointments = AppointmentSerializer(many=True, read_only=True)
+    slots = AvailabilitySlotSerializer(many=True, read_only=True)
+    
+    user = serializers.StringRelatedField()
+    
     class Meta:
         model = Doctor
-        fields = ['id', 'user', 'contact_email', 'speciality']
+        fields = [
+            'id', 'user', 'contact_email', 'specialty', 
+            'gender', 'phone', 'bio', 'years_of_experience', 'profile_picture',
+            'appointments', 'slots'
+        ]
+
 
 
 class AppointmentBriefSerializer(serializers.ModelSerializer):
