@@ -1,6 +1,8 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, generics
+from rest_framework.permissions import IsAuthenticated
+from .serializers import PatientProfileSerializer
 from .models import User, Doctor, Patient, Specialty
 from django.contrib.auth.hashers import make_password
 from django.utils import timezone
@@ -30,7 +32,6 @@ class RegisterView(APIView):
         )
 
         if role == 'doctor':
-            # بيانات الدكتور الإضافية
             Doctor.objects.create(
                 user=user,
                 specialty=Specialty.objects.get(id=data.get('specialty_id')),
@@ -43,13 +44,24 @@ class RegisterView(APIView):
             )
 
         elif role == 'patient':
-            # بيانات المريض الإضافية
             Patient.objects.create(
                 user=user,
                 gender=data.get('gender'),
                 date_of_birth=data.get('date_of_birth'),
                 address=data.get('address'),
                 phone=data.get('phone'),
+                disease=data.get('disease', 'unknown'),
+                medical_history=data.get('medical_history', ''),
+                profile_picture=data.get('profile_picture', None),
             )
 
+
         return Response({"message": "User registered successfully"}, status=201)
+
+
+class PatientProfileView(generics.RetrieveAPIView):
+    serializer_class = PatientProfileSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return Patient.objects.get(user=self.request.user)
