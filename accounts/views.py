@@ -1,6 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, generics
+from rest_framework.generics import RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
 from .serializers import PatientProfileSerializer
 from .models import User, Doctor, Patient, Specialty
@@ -59,7 +60,7 @@ class RegisterView(APIView):
         return Response({"message": "User registered successfully"}, status=201)
 
 
-class PatientProfileView(generics.RetrieveAPIView):
+class PatientProfileView(RetrieveUpdateDestroyAPIView):
     serializer_class = PatientProfileSerializer
     permission_classes = [IsAuthenticated]
 
