@@ -1,8 +1,5 @@
 from rest_framework import serializers
-from .models import User, Doctor, Patient
-from appointments.models import Appointment
-from appointments.serializers import AppointmentSerializer
-from availability.serializers import AvailabilitySlotSerializer
+from .models import User, Doctor, Patient, Specialty
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -49,44 +46,28 @@ class RegisterSerializer(serializers.ModelSerializer):
 
         return user
 
-class DoctorProfileSerializer(serializers.ModelSerializer):
-    appointments = AppointmentSerializer(many=True, read_only=True)
-    slots = AvailabilitySlotSerializer(many=True, read_only=True)
-    
-    user = serializers.StringRelatedField()
-    
-    class Meta:
-        model = Doctor
-        fields = [
-            'id', 'user', 'contact_email', 'specialty', 
-            'gender', 'phone', 'bio', 'years_of_experience', 'profile_picture',
-            'appointments', 'slots'
-        ]
 
-class DoctorSimpleSerializer(serializers.ModelSerializer):
-    name = serializers.CharField(source='user.username', read_only=True)
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'role', 'is_approved']
+
+class DoctorDetailSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
 
     class Meta:
         model = Doctor
-        fields = ['id', 'name', 'specialty', 'profile_picture']
+        fields = '__all__'
 
-class AppointmentBriefSerializer(serializers.ModelSerializer):
-    doctor = DoctorSimpleSerializer(read_only=True)
-    
-    class Meta:
-        model = Appointment
-    
-        fields = ['id', 'doctor', 'date', 'time', 'status']
+class PatientDetailSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
 
-
-class PatientProfileSerializer(serializers.ModelSerializer):
-    user = serializers.StringRelatedField()
-    appointments = AppointmentBriefSerializer(many=True, read_only=True)
-    profile_picture = serializers.ImageField(read_only=True)  
     class Meta:
         model = Patient
-        fields = [
-            'id', 'user', 'gender', 'date_of_birth',
-            'address', 'phone', 'disease', 'medical_history',
-            'appointments', 'profile_picture'
-        ]
+        fields = '__all__'
+
+class SpecialtySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Specialty
+        fields = ['id', 'name']
