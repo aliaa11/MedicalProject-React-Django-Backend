@@ -81,7 +81,6 @@ class AppointmentBriefSerializer(serializers.ModelSerializer):
 class PatientProfileSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField()
     appointments = AppointmentBriefSerializer(many=True, read_only=True)
-    profile_picture = serializers.ImageField(read_only=True)  
     class Meta:
         model = Patient
         fields = [

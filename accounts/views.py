@@ -11,6 +11,7 @@ from rest_framework.permissions import AllowAny
 from accounts.models import Doctor
 from .serializers import *
 from .permissions import IsRoleAdmin
+from rest_framework.exceptions import NotFound
 
 
 # views.py
@@ -72,7 +73,14 @@ class PatientProfileView(RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
-        return Patient.objects.get(user=self.request.user)
+        print("Request user:", self.request.user)
+        try:
+            return Patient.objects.get(user=self.request.user)
+        except Patient.DoesNotExist:
+            print("Patient does not exist for this user.")
+            raise NotFound("Patient profile not found.")
+
+
     
     
 class DoctorProfileView(generics.RetrieveAPIView):
