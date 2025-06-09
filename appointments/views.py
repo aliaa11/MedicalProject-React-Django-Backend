@@ -78,3 +78,20 @@ class PatientAppointmentsView(generics.ListAPIView):
         except Patient.DoesNotExist:
             return Appointment.objects.none()
 
+class UpdateAppointmentStatusView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, pk):
+        try:
+            appointment = Appointment.objects.get(pk=pk, doctor__user=request.user)
+        except Appointment.DoesNotExist:
+            return Response({'detail': 'Appointment not found or you do not have permission.'}, status=status.HTTP_404_NOT_FOUND)
+
+        new_status = request.data.get('status')
+        if new_status not in ['pending', 'confirmed', 'canceled']:
+            return Response({'detail': 'Invalid status value.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        appointment.status = new_status
+        appointment.save()
+        return Response({'detail': f'Status updated to {new_status} successfully.'})        
+
