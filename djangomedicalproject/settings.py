@@ -1,5 +1,7 @@
 from pathlib import Path
 from datetime import timedelta
+import os
+
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -23,6 +25,9 @@ INSTALLED_APPS = [
     'rest_framework',
     'accounts',  # Custom app for user accounts
         'rest_framework.authtoken',
+         'availability',
+             'appointments',
+
 
 ]
 REST_FRAMEWORK = {

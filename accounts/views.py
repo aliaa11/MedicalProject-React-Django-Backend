@@ -8,56 +8,112 @@ from .serializers import *
 from .permissions import IsRoleAdmin
 
 
+# views.py
+# from django.contrib.auth.models import User
+from rest_framework.decorators import api_view
 
-class RegisterView(APIView):
-    def post(self, request):
-        data = request.data
+@api_view(['POST'])
+def create_user(request):
+    data = request.data
+    try:
+        user = User.objects.create_user(
+            username=data['username'],
+            email=data['email'],
+            password=data['password']
+        )
+        return Response({'message': 'User created successfully', 'user_id': user.id}, status=201)
+    except Exception as e:
+        return Response({'error': str(e)}, status=400)
 
-        username = data.get('username')
-        email = data.get('email')
-        password = data.get('password')
-        role = data.get('role')
+@api_view(['POST'])
+def create_doctor(request):
+    data = request.data
+    try:
+        user = User.objects.get(id=data['user_id'])
+        specialty = Specialty.objects.get(id=data['specialty_id'])
+        Doctor.objects.create(
+            user=user,
+            specialty=specialty,
+            gender=data['gender'],
+            phone=data['phone'],
+            bio=data['bio'],
+            contact_email=data['contact_email'],
+            years_of_experience=data.get('years_of_experience', 0),
+            profile_picture=data.get('profile_picture')  # optional
+        )
+        return Response({'message': 'Doctor profile created'}, status=201)
+    except Exception as e:
+        return Response({'error': str(e)}, status=400)
 
-        if not all([username, email, password, role]):
-            return Response({"error": "Missing required fields"}, status=400)
-
-        if User.objects.filter(email=email).exists():
-            return Response({"error": "Email already exists"}, status=400)
-
-        # Create user
-        user = User.objects.create(
-            username=username,
-            email=email,
-            role=role,
-            password=make_password(password),
-            is_approved=(role == 'patient')        )
-
-        if role == 'doctor':
-            Doctor.objects.create(
-                user=user,
-                specialty=Specialty.objects.get(id=data.get('specialty_id')),
-                gender=data.get('gender'),
-                phone=data.get('phone'),
-                bio=data.get('bio', ''),
-                contact_email=data.get('contact_email'),
-                years_of_experience=data.get('years_of_experience', 0),
-                profile_picture=data.get('profile_picture', None),
-            )
-
-        elif role == 'patient':
-            Patient.objects.create(
-                user=user,
-                gender=data.get('gender'),
-                date_of_birth=data.get('date_of_birth'),
-                address=data.get('address'),
-                phone=data.get('phone'),
-                disease=data.get('disease', 'unknown'),
-                medical_history=data.get('medical_history', ''),
-                profile_picture=data.get('profile_picture', None),
-            )
+@api_view(['POST'])
+def create_patient(request):
+    data = request.data
+    try:
+        user = User.objects.get(id=data['user_id'])
+        Patient.objects.create(
+            user=user,
+            gender=data['gender'],
+            date_of_birth=data['date_of_birth'],
+            address=data['address'],
+            phone=data['phone'],
+            disease=data.get('disease', ''),
+            medical_history=data.get('medical_history', ''),
+            profile_picture=data.get('profile_picture')  # optional
+        )
+        return Response({'message': 'Patient profile created'}, status=201)
+    except Exception as e:
+        return Response({'error': str(e)}, status=400)
 
 
-        return Response({"message": "User registered successfully"}, status=201)
+# class RegisterView(APIView):
+#     def post(self, request):
+#         data = request.data
+
+#         username = data.get('username')
+#         email = data.get('email')
+#         password = data.get('password')
+#         role = data.get('role')
+
+#         if not all([username, email, password, role]):
+#             return Response({"error": "Missing required fields"}, status=400)
+
+#         if User.objects.filter(email=email).exists():
+#             return Response({"error": "Email already exists"}, status=400)
+
+#         # Create user
+#         user = User.objects.create(
+#             username=username,
+#             email=email,
+#             role=role,
+#             password=make_password(password),
+#             is_approved=(role == 'patient')        )
+
+#         if role == 'doctor':
+#             Doctor.objects.create(
+#                 user=user,
+#                 specialty=Specialty.objects.get(id=data.get('specialty_id')),
+#                 gender=data.get('gender'),
+#                 phone=data.get('phone'),
+#                 bio=data.get('bio', ''),
+#                 contact_email=data.get('contact_email'),
+#                 years_of_experience=data.get('years_of_experience', 0),
+#                 profile_picture=data.get('profile_picture', None),
+#             )
+
+#         elif role == 'patient':
+#             Patient.objects.create(
+#                 user=user,
+#                 gender=data.get('gender'),
+#                 date_of_birth=data.get('date_of_birth'),
+#                 address=data.get('address'),
+#                 phone=data.get('phone'),
+#                 disease=data.get('disease', 'unknown'),
+#                 medical_history=data.get('medical_history', ''),
+#                 profile_picture=data.get('profile_picture', None),
+#             )
+
+
+#         return Response({"message": "User registered successfully"}, status=201)
 
 
 
