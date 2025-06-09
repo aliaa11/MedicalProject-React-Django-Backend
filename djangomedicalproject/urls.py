@@ -8,10 +8,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('accounts.urls')),
     path('api/availability/', include('availability.urls')),
-    # path('api/doctors/', include('accounts.urls')), 
-    
-
-    # path('', home, name='home'),
     path('api/appointments/', include('appointments.urls')),
 ]
 

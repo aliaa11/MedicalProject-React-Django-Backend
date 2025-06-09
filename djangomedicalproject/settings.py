@@ -1,6 +1,12 @@
 from pathlib import Path
+<<<<<<< HEAD
 import os
 from datetime import timedelta
+=======
+from datetime import timedelta
+import os
+
+>>>>>>> origin/registerAndLoginUpdates
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,7 +32,7 @@ INSTALLED_APPS = [
     'availability',
     'corsheaders',
     'appointments',
-        'rest_framework.authtoken',
+    'rest_framework.authtoken',
 
 ]
 REST_FRAMEWORK = {
