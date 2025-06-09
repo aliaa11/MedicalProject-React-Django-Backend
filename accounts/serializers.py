@@ -1,8 +1,8 @@
 from rest_framework import serializers
-from .models import User, Doctor, Patient
 from appointments.models import Appointment
 from appointments.serializers import AppointmentSerializer
 from availability.serializers import AvailabilitySlotSerializer
+from .models import User, Doctor, Patient, Specialty
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -90,3 +90,28 @@ class PatientProfileSerializer(serializers.ModelSerializer):
             'address', 'phone', 'disease', 'medical_history',
             'appointments', 'profile_picture'
         ]
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'role', 'is_approved']
+
+class DoctorDetailSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+
+    class Meta:
+        model = Doctor
+        fields = '__all__'
+
+class PatientDetailSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+
+    class Meta:
+        model = Patient
+        fields = '__all__'
+
+class SpecialtySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Specialty
+        fields = ['id', 'name']
