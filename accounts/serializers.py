@@ -63,6 +63,8 @@ class DoctorProfileSerializer(serializers.ModelSerializer):
             'appointments', 'slots'
         ]
 
+
+
 class AppointmentBriefSerializer(serializers.ModelSerializer):
     doctor = DoctorProfileSerializer(read_only=True)
     class Meta:

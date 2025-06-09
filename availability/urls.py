@@ -1,6 +1,10 @@
-from django.urls import path
-from .views import AvailabilitySlotListCreateView
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import AvailabilitySlotViewSet
+
+router = DefaultRouter()
+router.register(r'slots', AvailabilitySlotViewSet, basename='availabilityslot')
 
 urlpatterns = [
-    path('', AvailabilitySlotListCreateView.as_view(), name='availability-slot-list-create'),
+    path('', include(router.urls)),
 ]
