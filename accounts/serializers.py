@@ -18,13 +18,12 @@ class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            'id', 'username', 'email', 'password', 'role', 'profile_picture',
+            'id', 'username', 'email', 'password', 'role',
             'gender', 'date_of_birth', 'address', 'phone', 'disease', 'medical_history'
         ]
 
     def create(self, validated_data):
         role = validated_data.pop('role')
-        profile_picture = validated_data.pop('profile_picture', None)
 
         user = User.objects.create_user(
             username=validated_data.pop('username'),
@@ -59,7 +58,7 @@ class DoctorProfileSerializer(serializers.ModelSerializer):
         model = Doctor
         fields = [
             'id', 'user', 'contact_email', 'specialty', 
-            'gender', 'phone', 'bio', 'years_of_experience', 'profile_picture',
+            'gender', 'phone', 'bio', 'years_of_experience',
             'appointments', 'slots'
         ]
 
@@ -68,7 +67,7 @@ class DoctorSimpleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Doctor
-        fields = ['id', 'name', 'specialty', 'profile_picture']
+        fields = ['id', 'name', 'specialty']
 
 class AppointmentBriefSerializer(serializers.ModelSerializer):
     doctor = DoctorSimpleSerializer(read_only=True)
@@ -82,13 +81,12 @@ class AppointmentBriefSerializer(serializers.ModelSerializer):
 class PatientProfileSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField()
     appointments = AppointmentBriefSerializer(many=True, read_only=True)
-    profile_picture = serializers.ImageField(read_only=True)  
     class Meta:
         model = Patient
         fields = [
             'id', 'user', 'gender', 'date_of_birth',
             'address', 'phone', 'disease', 'medical_history',
-            'appointments', 'profile_picture'
+            'appointments'
         ]
 
 
