@@ -43,7 +43,7 @@ class RegisterSerializer(serializers.ModelSerializer):
                 phone=validated_data.get('phone', ''),
                 disease=validated_data.get('disease', 'unknown'),
                 medical_history=validated_data.get('medical_history', ''),
-                profile_picture=profile_picture,
+                # profile_picture=profile_picture,
             )
 
         return user
