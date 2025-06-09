@@ -44,7 +44,6 @@ def create_doctor(request):
             bio=data['bio'],
             contact_email=data['contact_email'],
             years_of_experience=data.get('years_of_experience', 0),
-            profile_picture=data.get('profile_picture')  # optional
         )
         return Response({'message': 'Doctor profile created'}, status=201)
     except Exception as e:
@@ -63,7 +62,6 @@ def create_patient(request):
             phone=data['phone'],
             disease=data.get('disease', ''),
             medical_history=data.get('medical_history', ''),
-            profile_picture=data.get('profile_picture')  # optional
         )
         return Response({'message': 'Patient profile created'}, status=201)
     except Exception as e:
