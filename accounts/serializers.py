@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Doctor, Patient
+from .models import User, Doctor, Patient, Specialty
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -25,3 +25,29 @@ class RegisterSerializer(serializers.ModelSerializer):
             Patient.objects.create(user=user)
 
         return user
+
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'role', 'is_approved']
+
+class DoctorDetailSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+
+    class Meta:
+        model = Doctor
+        fields = '__all__'
+
+class PatientDetailSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+
+    class Meta:
+        model = Patient
+        fields = '__all__'
+
+class SpecialtySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Specialty
+        fields = ['id', 'name']
