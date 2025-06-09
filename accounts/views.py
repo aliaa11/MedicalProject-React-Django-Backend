@@ -84,6 +84,17 @@ class DoctorProfileView(generics.RetrieveAPIView):
     lookup_field = 'id' 
 
 
+class AllDoctorsView(generics.ListAPIView):
+    queryset = Doctor.objects.all()
+    serializer_class = DoctorProfileSerializer 
+    permission_classes = [AllowAny]
+
+class DoctorProfileUpdateView(RetrieveUpdateDestroyAPIView):
+    serializer_class = DoctorProfileSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return Doctor.objects.get(user=self.request.user)
 
 
 # 1. عرض كل المستخدمين
