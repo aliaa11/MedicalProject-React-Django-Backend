@@ -56,15 +56,16 @@ class AvailableAppointmentsByDayView(generics.ListAPIView):
 class BookAppointmentView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def put(self, request, pk):
+    def put(self, request, doctor_id, pk):
         try:
-            appointment = Appointment.objects.get(pk=pk, patient__isnull=True)
+            appointment = Appointment.objects.get(pk=pk, doctor_id=doctor_id, patient__isnull=True)
         except Appointment.DoesNotExist:
-            return Response({'detail': 'Appointment not available or already booked.'}, status=404)
+            return Response({'detail': 'Appointment not available or already booked with this doctor.'}, status=404)
 
-        appointment.patient = request.user.patient  
+        appointment.patient = request.user.patient
         appointment.save()
         return Response({'detail': 'Appointment booked successfully.'})
+
 
 class PatientAppointmentsView(generics.ListAPIView):
     serializer_class = AppointmentSerializer
@@ -76,4 +77,21 @@ class PatientAppointmentsView(generics.ListAPIView):
             return Appointment.objects.filter(patient=patient)
         except Patient.DoesNotExist:
             return Appointment.objects.none()
+
+class UpdateAppointmentStatusView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, pk):
+        try:
+            appointment = Appointment.objects.get(pk=pk, doctor__user=request.user)
+        except Appointment.DoesNotExist:
+            return Response({'detail': 'Appointment not found or you do not have permission.'}, status=status.HTTP_404_NOT_FOUND)
+
+        new_status = request.data.get('status')
+        if new_status not in ['pending', 'confirmed', 'canceled']:
+            return Response({'detail': 'Invalid status value.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        appointment.status = new_status
+        appointment.save()
+        return Response({'detail': f'Status updated to {new_status} successfully.'})        
 
