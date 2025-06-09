@@ -56,15 +56,16 @@ class AvailableAppointmentsByDayView(generics.ListAPIView):
 class BookAppointmentView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def put(self, request, pk):
+    def put(self, request, doctor_id, pk):
         try:
-            appointment = Appointment.objects.get(pk=pk, patient__isnull=True)
+            appointment = Appointment.objects.get(pk=pk, doctor_id=doctor_id, patient__isnull=True)
         except Appointment.DoesNotExist:
-            return Response({'detail': 'Appointment not available or already booked.'}, status=404)
+            return Response({'detail': 'Appointment not available or already booked with this doctor.'}, status=404)
 
-        appointment.patient = request.user.patient  # لو المريض مرتبط باليوزر
+        appointment.patient = request.user.patient
         appointment.save()
         return Response({'detail': 'Appointment booked successfully.'})
+
 
 class PatientAppointmentsView(generics.ListAPIView):
     serializer_class = AppointmentSerializer
