@@ -63,13 +63,21 @@ class DoctorProfileSerializer(serializers.ModelSerializer):
             'appointments', 'slots'
         ]
 
+class DoctorSimpleSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(source='user.username', read_only=True)
 
+    class Meta:
+        model = Doctor
+        fields = ['id', 'name', 'specialty', 'profile_picture']
 
 class AppointmentBriefSerializer(serializers.ModelSerializer):
-    doctor = DoctorProfileSerializer(read_only=True)
+    doctor = DoctorSimpleSerializer(read_only=True)
+    
     class Meta:
         model = Appointment
+    
         fields = ['id', 'doctor', 'date', 'time', 'status']
+
 
 class PatientProfileSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField()

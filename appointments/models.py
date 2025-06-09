@@ -13,5 +13,6 @@ class Appointment(models.Model):
     status = models.CharField(max_length=20, default='pending')  # مثل: pending, confirmed, canceled
 
     def __str__(self):
-        return f"Appointment with Dr.{self.doctor.name} on {self.date} at {self.time}"
+       return f"Appointment with Dr. {self.doctor.user.username} on {self.date} at {self.time}"
+
 
