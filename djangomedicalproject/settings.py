@@ -1,12 +1,6 @@
 from pathlib import Path
-<<<<<<< HEAD
 import os
 from datetime import timedelta
-=======
-from datetime import timedelta
-import os
-
->>>>>>> origin/registerAndLoginUpdates
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
