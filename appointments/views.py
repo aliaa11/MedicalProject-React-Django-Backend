@@ -62,7 +62,7 @@ class BookAppointmentView(APIView):
         except Appointment.DoesNotExist:
             return Response({'detail': 'Appointment not available or already booked.'}, status=404)
 
-        appointment.patient = request.user.patient  # لو المريض مرتبط باليوزر
+        appointment.patient = request.user.patient  
         appointment.save()
         return Response({'detail': 'Appointment booked successfully.'})
 
