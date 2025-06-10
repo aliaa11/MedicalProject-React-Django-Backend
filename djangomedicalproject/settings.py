@@ -32,7 +32,6 @@ INSTALLED_APPS = [
     'django_extensions',
     'appointments',
     'rest_framework.authtoken',
-    'django_extensions',
 
 ]
 REST_FRAMEWORK = {
