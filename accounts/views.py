@@ -210,3 +210,5 @@ class ChangeUserRole(APIView):
             return Response({"message": f"User role updated to {role}"})
         except User.DoesNotExist:
             return Response({"error": "User not found"}, status=404)
+
+

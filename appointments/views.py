@@ -12,7 +12,7 @@ from django.db.models import Q
 from rest_framework.views import APIView
 from django.db.models.functions import TruncDate
 from .models import Appointment
-
+from django.shortcuts import get_object_or_404
 
 
 class AppointmentListCreateView(generics.ListCreateAPIView):
@@ -78,20 +78,60 @@ class PatientAppointmentsView(generics.ListAPIView):
         except Patient.DoesNotExist:
             return Appointment.objects.none()
 
+# class UpdateAppointmentStatusView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def patch(self, request, pk):
+#         try:
+#             appointment = Appointment.objects.get(pk=pk, doctor__user=request.user)
+#         except Appointment.DoesNotExist:
+#             return Response({'detail': 'Appointment not found or you do not have permission.'}, status=status.HTTP_404_NOT_FOUND)
+
+#         new_status = request.data.get('status')
+#         if new_status not in ['pending', 'confirmed', 'canceled']:
+#             return Response({'detail': 'Invalid status value.'}, status=status.HTTP_400_BAD_REQUEST)
+
+#         appointment.status = new_status
+#         appointment.save()
+#         return Response({'detail': f'Status updated to {new_status} successfully.'})        
+
+
+class AdminAppointmentListView(generics.ListAPIView):
+    serializer_class = AppointmentSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        if not self.request.user.role == 'admin':
+            return Appointment.objects.none()
+        return Appointment.objects.all().order_by('-date', '-time')
+    
+class AdminAppointmentDetailView(generics.RetrieveAPIView):
+    serializer_class = AppointmentSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        if not self.request.user.role == 'admin':
+            return Appointment.objects.none()
+        return Appointment.objects.all()
+    
 class UpdateAppointmentStatusView(APIView):
     permission_classes = [IsAuthenticated]
 
     def patch(self, request, pk):
-        try:
-            appointment = Appointment.objects.get(pk=pk, doctor__user=request.user)
-        except Appointment.DoesNotExist:
-            return Response({'detail': 'Appointment not found or you do not have permission.'}, status=status.HTTP_404_NOT_FOUND)
+        # Get appointment or return 404
+        appointment = get_object_or_404(Appointment, pk=pk)
+        
+        # Check permissions
+        if not (request.user.role == 'admin' or 
+               (request.user.role == 'doctor' and appointment.doctor.user == request.user)):
+            return Response({'detail': 'Permission denied.'}, 
+                          status=status.HTTP_403_FORBIDDEN)
 
         new_status = request.data.get('status')
         if new_status not in ['pending', 'confirmed', 'canceled']:
-            return Response({'detail': 'Invalid status value.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'detail': 'Invalid status value.'}, 
+                           status=status.HTTP_400_BAD_REQUEST)
 
         appointment.status = new_status
         appointment.save()
-        return Response({'detail': f'Status updated to {new_status} successfully.'})        
-
+        return Response({'detail': f'Status updated to {new_status} successfully.'})
