@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'appointments',
     'rest_framework.authtoken',
+    'django_extensions',
 
 ]
 REST_FRAMEWORK = {
