@@ -9,6 +9,7 @@ urlpatterns = [
     path('patient-appointments/', PatientAppointmentsView.as_view(), name='patient-appointments'),
     path('doctors/<int:doctor_id>/available-appointment-days/', AvailableAppointmentDaysView.as_view(), name='available-appointment-days'),
     path('doctors/<int:doctor_id>/available-appointments/', AvailableAppointmentsByDayView.as_view(), name='available-appointments-by-day'),
+    # path('doctors/<int:id>/', DoctorProfileView.as_view(), name='doctor-profile'),
     path('update-status/<int:pk>/', UpdateAppointmentStatusView.as_view(), name='update-appointment-status'),
 
 ]
