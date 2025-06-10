@@ -67,6 +67,9 @@ def create_user(request):
             {'error': str(e)}, 
             status=status.HTTP_400_BAD_REQUEST
         )
+        return Response({'message': 'User created successfully', 'user_id': user.id}, status=201)
+    except Exception as e:
+        return Response({'error': str(e)}, status=400)
 
 
 @api_view(['POST'])
