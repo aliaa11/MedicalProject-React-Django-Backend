@@ -7,5 +7,10 @@ class AvailabilitySlot(models.Model):
     start_time = models.TimeField()
     end_time = models.TimeField()
 
+<<<<<<< HEAD
     def __str__(self):
         return f"{self.doctor.user.username} - {self.day} from {self.start_time} to {self.end_time}"
+=======
+    # def __str__(self):
+    #     return f"{self.doctor.name} - {self.day} from {self.start_time} to {self.end_time}"
+>>>>>>> 4574bf8 (get all available doctors. handling related issues)

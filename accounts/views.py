@@ -3,7 +3,11 @@ from rest_framework.response import Response
 from rest_framework import status, generics
 from rest_framework.generics import RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
+<<<<<<< HEAD
 # from .serializers import PatientProfileSerializer,DoctorProfileSerializer
+=======
+from .serializers import PatientProfileSerializer, SpecialtySerializer
+>>>>>>> 4574bf8 (get all available doctors. handling related issues)
 from .models import User, Doctor, Patient, Specialty
 from django.contrib.auth.hashers import make_password
 from django.utils import timezone
@@ -73,6 +77,7 @@ class PatientProfileView(RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
+<<<<<<< HEAD
         print("Request user:", self.request.user)
         try:
             return Patient.objects.get(user=self.request.user)
@@ -212,3 +217,27 @@ class ChangeUserRole(APIView):
             return Response({"error": "User not found"}, status=404)
 
 
+=======
+        return Patient.objects.get(user=self.request.user)
+    
+
+class SpecialtyListView(generics.ListAPIView):
+    serializer_class = SpecialtySerializer
+    
+    def get_queryset(self):
+        queryset = Specialty.objects.all()
+        
+        # Get search parameters from query string
+        search_term = self.request.query_params.get('search', None)
+        exact_match = self.request.query_params.get('exact', None)
+        
+        if search_term:
+            if exact_match:
+                # Exact match search
+                queryset = queryset.filter(name__iexact=search_term)
+            else:
+                # Partial match search (case-insensitive)
+                queryset = queryset.filter(name__icontains=search_term)
+        
+        return queryset.order_by('name')
+>>>>>>> 4574bf8 (get all available doctors. handling related issues)
