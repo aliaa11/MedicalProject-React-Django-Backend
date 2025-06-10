@@ -8,9 +8,12 @@ from .models import User, Doctor, Patient, Specialty
 from django.contrib.auth.hashers import make_password
 from django.utils import timezone
 from rest_framework.permissions import AllowAny
-from accounts.models import Doctor
 from .serializers import *
 from .permissions import IsRoleAdmin
+from rest_framework.exceptions import NotFound
+from django.db import IntegrityError
+from django.contrib.auth import authenticate
+from rest_framework_simplejwt.tokens import RefreshToken
 
 
 # views.py
@@ -20,15 +23,53 @@ from rest_framework.decorators import api_view
 @api_view(['POST'])
 def create_user(request):
     data = request.data
+    required_fields = ['username', 'email', 'password']
+    
+    # Check for missing fields
+    missing_fields = [field for field in required_fields if field not in data]
+    if missing_fields:
+        return Response(
+            {'error': f'Missing required fields: {", ".join(missing_fields)}'}, 
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
     try:
         user = User.objects.create_user(
             username=data['username'],
             email=data['email'],
-            password=data['password']
+            password=data['password'],
+        )
+        user.role = data.get('role', 'patient')
+        user.save()
+
+        return Response(
+            {'message': 'User created successfully', 'user_id': user.id}, 
+            status=status.HTTP_201_CREATED
+        )
+    except IntegrityError as e:
+        if 'username' in str(e):
+            return Response(
+                {'error': 'Username already exists'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        elif 'email' in str(e):
+            return Response(
+                {'error': 'Email already exists'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        return Response(
+            {'error': str(e)}, 
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    except Exception as e:
+        return Response(
+            {'error': str(e)}, 
+            status=status.HTTP_400_BAD_REQUEST
         )
         return Response({'message': 'User created successfully', 'user_id': user.id}, status=201)
     except Exception as e:
         return Response({'error': str(e)}, status=400)
+
 
 @api_view(['POST'])
 def create_doctor(request):
@@ -44,7 +85,6 @@ def create_doctor(request):
             bio=data['bio'],
             contact_email=data['contact_email'],
             years_of_experience=data.get('years_of_experience', 0),
-            profile_picture=data.get('profile_picture')  # optional
         )
         return Response({'message': 'Doctor profile created'}, status=201)
     except Exception as e:
@@ -63,18 +103,51 @@ def create_patient(request):
             phone=data['phone'],
             disease=data.get('disease', ''),
             medical_history=data.get('medical_history', ''),
-            profile_picture=data.get('profile_picture')  # optional
         )
         return Response({'message': 'Patient profile created'}, status=201)
     except Exception as e:
         return Response({'error': str(e)}, status=400)
+@api_view(['POST'])
+def login_user(request):
+    username = request.data.get('username')
+    password = request.data.get('password')
 
+    if not username or not password:
+        return Response(
+            {'message': 'يجب إدخال اسم المستخدم وكلمة المرور'}, 
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    user = authenticate(username=username, password=password)
+    
+    if not user:
+        return Response(
+            {'message': 'بيانات الدخول غير صحيحة'}, 
+            status=status.HTTP_401_UNAUTHORIZED
+        )
+
+    refresh = RefreshToken.for_user(user)
+    
+    return Response({
+        'message': 'تم تسجيل الدخول بنجاح',
+        'role': user.role,
+        'refresh': str(refresh),
+        'access': str(refresh.access_token),
+        'user_id': user.id  # إضافة user_id إذا كنت بحاجته
+    }, status=status.HTTP_200_OK)
 class PatientProfileView(RetrieveUpdateDestroyAPIView):
     serializer_class = PatientProfileSerializer
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
-        return Patient.objects.get(user=self.request.user)
+        print("Request user:", self.request.user)
+        try:
+            return Patient.objects.get(user=self.request.user)
+        except Patient.DoesNotExist:
+            print("Patient does not exist for this user.")
+            raise NotFound("Patient profile not found.")
+
+
     
     
 class DoctorProfileView(generics.RetrieveAPIView):
@@ -204,3 +277,27 @@ class ChangeUserRole(APIView):
             return Response({"message": f"User role updated to {role}"})
         except User.DoesNotExist:
             return Response({"error": "User not found"}, status=404)
+
+
+        return Patient.objects.get(user=self.request.user)
+    
+
+class SpecialtyListView(generics.ListAPIView):
+    serializer_class = SpecialtySerializer
+    
+    def get_queryset(self):
+        queryset = Specialty.objects.all()
+        
+        # Get search parameters from query string
+        search_term = self.request.query_params.get('search', None)
+        exact_match = self.request.query_params.get('exact', None)
+        
+        if search_term:
+            if exact_match:
+                # Exact match search
+                queryset = queryset.filter(name__iexact=search_term)
+            else:
+                # Partial match search (case-insensitive)
+                queryset = queryset.filter(name__icontains=search_term)
+        
+        return queryset.order_by('name')

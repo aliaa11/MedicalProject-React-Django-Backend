@@ -1,5 +1,9 @@
 from pathlib import Path
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
 from datetime import timedelta
 
 
@@ -12,7 +16,7 @@ SECRET_KEY = 'django-insecure-u+n^9t6#&(d7mwehr&+ehucdfxysgt1@$b5yk)mh6znjodw)a$
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -25,6 +29,7 @@ INSTALLED_APPS = [
     'accounts',  # Custom app for user accounts
     'availability',
     'corsheaders',
+    'django_extensions',
     'appointments',
     'rest_framework.authtoken',
     'django_extensions',
@@ -38,7 +43,7 @@ REST_FRAMEWORK = {
 AUTH_USER_MODEL = 'accounts.User'
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=7),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=30),  # ممكن تعدليها حسب ما تحبي
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=30), 
     "ROTATE_REFRESH_TOKENS": False,
     "BLACKLIST_AFTER_ROTATION": False,
     "ALGORITHM": "HS256",
@@ -59,6 +64,18 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
+
 
 ROOT_URLCONF = 'djangomedicalproject.urls'
 
@@ -85,6 +102,7 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',},

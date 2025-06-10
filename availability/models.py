@@ -1,5 +1,5 @@
 from django.db import models
-from accounts.models import Doctor  # تأكد الاستيراد صحيح
+from accounts.models import Doctor
 
 class AvailabilitySlot(models.Model):
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name='slots')
