@@ -13,7 +13,6 @@ from .serializers import *
 from .permissions import IsRoleAdmin
 from rest_framework.exceptions import NotFound
 
-
 # views.py
 # from django.contrib.auth.models import User
 from rest_framework.decorators import api_view
@@ -21,15 +20,50 @@ from rest_framework.decorators import api_view
 @api_view(['POST'])
 def create_user(request):
     data = request.data
+    required_fields = ['username', 'email', 'password']
+    
+    # Check for missing fields
+    missing_fields = [field for field in required_fields if field not in data]
+    if missing_fields:
+        return Response(
+            {'error': f'Missing required fields: {", ".join(missing_fields)}'}, 
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
     try:
         user = User.objects.create_user(
             username=data['username'],
             email=data['email'],
-            password=data['password']
+            password=data['password'],
         )
-        return Response({'message': 'User created successfully', 'user_id': user.id}, status=201)
+        user.role = data.get('role', 'patient')
+        user.save()
+
+        return Response(
+            {'message': 'User created successfully', 'user_id': user.id}, 
+            status=status.HTTP_201_CREATED
+        )
+    except IntegrityError as e:
+        if 'username' in str(e):
+            return Response(
+                {'error': 'Username already exists'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        elif 'email' in str(e):
+            return Response(
+                {'error': 'Email already exists'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        return Response(
+            {'error': str(e)}, 
+            status=status.HTTP_400_BAD_REQUEST
+        )
     except Exception as e:
-        return Response({'error': str(e)}, status=400)
+        return Response(
+            {'error': str(e)}, 
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
 
 @api_view(['POST'])
 def create_doctor(request):
