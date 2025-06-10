@@ -1,10 +1,7 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .views import *
-<<<<<<< HEAD
 from .views import create_user, create_doctor, create_patient, login_user
-=======
->>>>>>> origin/doctors
 
 
 
