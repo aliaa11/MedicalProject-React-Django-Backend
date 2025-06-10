@@ -13,7 +13,11 @@ urlpatterns = [
   path('login/', login_user, name='login'),  
   path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('patient/profile/', PatientProfileView.as_view(), name='patient-profile'),
-    path('doctor/profile/', DoctorProfileView.as_view(), name='doctor-profile'),
+    
+    path('doctor/profile/<int:id>/', DoctorProfileView.as_view(), name='doctor-profile'),
+    path('doctor/profile/', DoctorProfileUpdateView.as_view(), name='doctor-update-profile'),
+    path('doctors/', AllDoctorsView.as_view(), name='all-doctors'),
+
 
 
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
@@ -30,4 +34,5 @@ urlpatterns = [
     path('admin/specialties/create/', SpecialtyCreateView.as_view(), name='specialty-create'),
     path('admin/specialties/<int:pk>/', SpecialtyUpdateDeleteView.as_view(), name='specialty-update-delete'),
    
+    path('specialties/', SpecialtyListView.as_view(), name='specialty-list'),
 ]
