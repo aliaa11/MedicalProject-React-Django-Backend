@@ -35,7 +35,7 @@ REST_FRAMEWORK = {
 AUTH_USER_MODEL = 'accounts.User'
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=7),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=30),  # ممكن تعدليها حسب ما تحبي
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=30), 
     "ROTATE_REFRESH_TOKENS": False,
     "BLACKLIST_AFTER_ROTATION": False,
     "ALGORITHM": "HS256",
