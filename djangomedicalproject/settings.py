@@ -1,10 +1,16 @@
 from pathlib import Path
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
 from datetime import timedelta
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 SECRET_KEY = 'django-insecure-u+n^9t6#&(d7mwehr&+ehucdfxysgt1@$b5yk)mh6znjodw)a$'
 
@@ -23,9 +29,9 @@ INSTALLED_APPS = [
     'accounts',  # Custom app for user accounts
     'availability',
     'corsheaders',
+    'django_extensions',
     'appointments',
     'rest_framework.authtoken',
-
 ]
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -90,8 +96,12 @@ WSGI_APPLICATION = 'djangomedicalproject.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT'),
     }
 }
 

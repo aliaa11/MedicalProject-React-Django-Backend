@@ -8,7 +8,6 @@ from .models import User, Doctor, Patient, Specialty
 from django.contrib.auth.hashers import make_password
 from django.utils import timezone
 from rest_framework.permissions import AllowAny
-from accounts.models import Doctor
 from .serializers import *
 from .permissions import IsRoleAdmin
 from rest_framework.exceptions import NotFound
@@ -158,6 +157,17 @@ class DoctorProfileView(generics.RetrieveAPIView):
     lookup_field = 'id' 
 
 
+class AllDoctorsView(generics.ListAPIView):
+    queryset = Doctor.objects.all()
+    serializer_class = DoctorProfileSerializer 
+    permission_classes = [AllowAny]
+
+class DoctorProfileUpdateView(RetrieveUpdateDestroyAPIView):
+    serializer_class = DoctorProfileSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return Doctor.objects.get(user=self.request.user)
 
 
 # 1. عرض كل المستخدمين
@@ -267,3 +277,27 @@ class ChangeUserRole(APIView):
             return Response({"message": f"User role updated to {role}"})
         except User.DoesNotExist:
             return Response({"error": "User not found"}, status=404)
+
+
+        return Patient.objects.get(user=self.request.user)
+    
+
+class SpecialtyListView(generics.ListAPIView):
+    serializer_class = SpecialtySerializer
+    
+    def get_queryset(self):
+        queryset = Specialty.objects.all()
+        
+        # Get search parameters from query string
+        search_term = self.request.query_params.get('search', None)
+        exact_match = self.request.query_params.get('exact', None)
+        
+        if search_term:
+            if exact_match:
+                # Exact match search
+                queryset = queryset.filter(name__iexact=search_term)
+            else:
+                # Partial match search (case-insensitive)
+                queryset = queryset.filter(name__icontains=search_term)
+        
+        return queryset.order_by('name')
