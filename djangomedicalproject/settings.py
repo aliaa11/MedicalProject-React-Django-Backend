@@ -31,12 +31,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'django_extensions',
     'appointments',
-<<<<<<< HEAD
     'rest_framework.authtoken',
-
-=======
-    'accounts',  # Custom app for user accounts
->>>>>>> 83c81e9 (merge with patient profile branch)
 ]
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (

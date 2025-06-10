@@ -1,8 +1,4 @@
 from rest_framework import serializers
-<<<<<<< HEAD
-=======
-from .models import User, Doctor, Patient, Specialty
->>>>>>> 4574bf8 (get all available doctors. handling related issues)
 from appointments.models import Appointment
 from appointments.serializers import AppointmentSerializer
 from availability.serializers import AvailabilitySlotSerializer
@@ -90,7 +86,6 @@ class PatientProfileSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'user', 'gender', 'date_of_birth',
             'address', 'phone', 'disease', 'medical_history',
-<<<<<<< HEAD
             'appointments'
         ]
 
@@ -117,13 +112,5 @@ class PatientDetailSerializer(serializers.ModelSerializer):
 class SpecialtySerializer(serializers.ModelSerializer):
     class Meta:
         model = Specialty
-        fields = ['id', 'name']
-=======
-            'appointments', 'profile_picture'
+        fields = ['id', 'name'
         ]
-
-class SpecialtySerializer(serializers.ModelSerializer):
-    class Meta:
-        model=Specialty
-        fields = ['id','name']
->>>>>>> 4574bf8 (get all available doctors. handling related issues)

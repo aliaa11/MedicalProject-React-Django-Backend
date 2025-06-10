@@ -1,11 +1,6 @@
 from django.urls import path
-<<<<<<< HEAD
-=======
-from .views import RegisterView, PatientProfileView, SpecialtyListView
->>>>>>> 4574bf8 (get all available doctors. handling related issues)
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .views import *
-from .views import create_user, create_doctor, create_patient
 
 
 
@@ -17,10 +12,9 @@ urlpatterns = [
     path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('patient/profile/', PatientProfileView.as_view(), name='patient-profile'),
-<<<<<<< HEAD
     
-    path('doctor/profile/', DoctorProfileUpdateView.as_view(), name='doctor-update-profile'),
     path('doctor/profile/<int:id>/', DoctorProfileView.as_view(), name='doctor-profile'),
+    path('doctor/profile/', DoctorProfileUpdateView.as_view(), name='doctor-update-profile'),
     path('doctors/', AllDoctorsView.as_view(), name='all-doctors'),
 
 
@@ -39,7 +33,5 @@ urlpatterns = [
     path('admin/specialties/create/', SpecialtyCreateView.as_view(), name='specialty-create'),
     path('admin/specialties/<int:pk>/', SpecialtyUpdateDeleteView.as_view(), name='specialty-update-delete'),
    
-=======
     path('specialties/', SpecialtyListView.as_view(), name='specialty-list'),
->>>>>>> 4574bf8 (get all available doctors. handling related issues)
 ]

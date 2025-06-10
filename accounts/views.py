@@ -3,16 +3,11 @@ from rest_framework.response import Response
 from rest_framework import status, generics
 from rest_framework.generics import RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
-<<<<<<< HEAD
 # from .serializers import PatientProfileSerializer,DoctorProfileSerializer
-=======
-from .serializers import PatientProfileSerializer, SpecialtySerializer
->>>>>>> 4574bf8 (get all available doctors. handling related issues)
 from .models import User, Doctor, Patient, Specialty
 from django.contrib.auth.hashers import make_password
 from django.utils import timezone
 from rest_framework.permissions import AllowAny
-from accounts.models import Doctor
 from .serializers import *
 from .permissions import IsRoleAdmin
 from rest_framework.exceptions import NotFound
@@ -77,7 +72,6 @@ class PatientProfileView(RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
-<<<<<<< HEAD
         print("Request user:", self.request.user)
         try:
             return Patient.objects.get(user=self.request.user)
@@ -217,7 +211,6 @@ class ChangeUserRole(APIView):
             return Response({"error": "User not found"}, status=404)
 
 
-=======
         return Patient.objects.get(user=self.request.user)
     
 
@@ -240,4 +233,3 @@ class SpecialtyListView(generics.ListAPIView):
                 queryset = queryset.filter(name__icontains=search_term)
         
         return queryset.order_by('name')
->>>>>>> 4574bf8 (get all available doctors. handling related issues)
