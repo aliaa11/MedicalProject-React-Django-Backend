@@ -92,12 +92,19 @@ class PatientProfileSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'role', 'is_approved']
+        fields = ['id', 'username', 'email', 'role', 'is_approved', 'date_joined']
+        read_only_fields = ['date_joined']
+
 
 class DoctorProfileSerializer(serializers.ModelSerializer):
     appointments = AppointmentSerializer(many=True, read_only=True)
     slots = AvailabilitySlotSerializer(many=True, read_only=True)
     user = UserSerializer(read_only=True)  # استخدام UserSerializer بدل StringRelatedField
+
+    
+class DoctorDetailSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+    specialty = serializers.StringRelatedField()
 
     class Meta:
         model = Doctor
