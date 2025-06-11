@@ -92,10 +92,13 @@ class PatientProfileSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'role', 'is_approved']
+        fields = ['id', 'username', 'email', 'role', 'is_approved', 'date_joined']
+        read_only_fields = ['date_joined']
+
 
 class DoctorDetailSerializer(serializers.ModelSerializer):
     user = UserSerializer()
+    specialty = serializers.StringRelatedField()
 
     class Meta:
         model = Doctor

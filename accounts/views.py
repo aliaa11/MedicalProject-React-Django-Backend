@@ -19,7 +19,6 @@ from rest_framework_simplejwt.tokens import RefreshToken
 # views.py
 # from django.contrib.auth.models import User
 from rest_framework.decorators import api_view
-
 @api_view(['POST'])
 def create_user(request):
     data = request.data
@@ -40,12 +39,27 @@ def create_user(request):
             password=data['password'],
         )
         user.role = data.get('role', 'patient')
-        user.save()
+        
+        # Doctors need approval, patients don't
+        if user.role == 'doctor':
+            user.is_approved = False
+            user.save()
+            # Send notification to admin (you can implement this)
+            return Response(
+                {
+                    'message': 'Doctor registration submitted for approval',
+                    'user_id': user.id,
+                    'requires_approval': True
+                }, 
+                status=status.HTTP_201_CREATED
+            )
+        else:
+            user.save()
+            return Response(
+                {'message': 'Patient registered successfully', 'user_id': user.id}, 
+                status=status.HTTP_201_CREATED
+            )
 
-        return Response(
-            {'message': 'User created successfully', 'user_id': user.id}, 
-            status=status.HTTP_201_CREATED
-        )
     except IntegrityError as e:
         if 'username' in str(e):
             return Response(
@@ -66,9 +80,6 @@ def create_user(request):
             {'error': str(e)}, 
             status=status.HTTP_400_BAD_REQUEST
         )
-        return Response({'message': 'User created successfully', 'user_id': user.id}, status=201)
-    except Exception as e:
-        return Response({'error': str(e)}, status=400)
 
 
 @api_view(['POST'])
@@ -114,7 +125,7 @@ def login_user(request):
 
     if not username or not password:
         return Response(
-            {'message': 'يجب إدخال اسم المستخدم وكلمة المرور'}, 
+            {'message': 'Username and password are required'}, 
             status=status.HTTP_400_BAD_REQUEST
         )
 
@@ -122,20 +133,26 @@ def login_user(request):
     
     if not user:
         return Response(
-            {'message': 'بيانات الدخول غير صحيحة'}, 
+            {'message': 'Invalid credentials'}, 
             status=status.HTTP_401_UNAUTHORIZED
+        )
+    
+    # Check if doctor is approved
+    if user.role == 'doctor' and not user.is_approved:
+        return Response(
+            {'message': 'Your account is pending admin approval'}, 
+            status=status.HTTP_403_FORBIDDEN
         )
 
     refresh = RefreshToken.for_user(user)
 
     return Response({
-        'message': 'تم تسجيل الدخول بنجاح',
+        'message': 'Login successful',
         'role': user.role,
+        'is_approved': user.is_approved if user.role == 'doctor' else True,
         'refresh': str(refresh),
         'access': str(refresh.access_token),
-        'user_id': user.id,
-        'username': user.username,
-        'email': user.email  # ✅ أضف هذا السطر
+        'user_id': user.id
     }, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
@@ -234,6 +251,7 @@ class AllUsersView(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsRoleAdmin]
+
 
 
 # 2. عرض تفاصيل مستخدم (دكتور أو مريض)
