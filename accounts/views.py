@@ -170,6 +170,17 @@ class DoctorProfileUpdateView(RetrieveUpdateDestroyAPIView):
         return Doctor.objects.get(user=self.request.user)
 
 
+class DoctorByUserIdView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, user_id):
+        try:
+            doctor = Doctor.objects.get(user__id=user_id)
+            serializer = DoctorProfileSerializer(doctor)
+            return Response(serializer.data)
+        except Doctor.DoesNotExist:
+            return Response({"error": "Doctor not found"}, status=404)
+
 # 1. عرض كل المستخدمين
 class AllUsersView(generics.ListAPIView):
     queryset = User.objects.all()

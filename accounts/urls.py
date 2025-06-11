@@ -17,6 +17,8 @@ urlpatterns = [
     path('doctor/profile/<int:id>/', DoctorProfileView.as_view(), name='doctor-profile'),
     path('doctor/profile/', DoctorProfileUpdateView.as_view(), name='doctor-update-profile'),
     path('doctors/', AllDoctorsView.as_view(), name='all-doctors'),
+    path('doctor/by-user/<int:user_id>/', DoctorByUserIdView.as_view(), name='doctor-by-user'),
+
 
 
 
