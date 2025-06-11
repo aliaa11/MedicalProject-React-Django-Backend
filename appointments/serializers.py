@@ -1,10 +1,14 @@
 from rest_framework import serializers
 from .models import Appointment
+# لا تستورد PatientDetailSerializer هنا
 
 class AppointmentSerializer(serializers.ModelSerializer):
-    doctor_name = serializers.CharField(source='doctor.user.username', read_only=True)
-    doctor_specialty = serializers.CharField(source='doctor.specialty.name', read_only=True)
+    patient = serializers.SerializerMethodField()
 
     class Meta:
         model = Appointment
-        fields = ['id', 'doctor', 'doctor_name', 'doctor_specialty', 'date', 'time', 'status']
+        fields = '__all__'
+
+    def get_patient(self, obj):
+        from accounts.serializers import PatientDetailSerializer  # استيراد مؤجل
+        return PatientDetailSerializer(obj.patient).data

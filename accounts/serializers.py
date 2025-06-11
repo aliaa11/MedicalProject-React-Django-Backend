@@ -94,12 +94,18 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'username', 'email', 'role', 'is_approved']
 
-class DoctorDetailSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
+class DoctorProfileSerializer(serializers.ModelSerializer):
+    appointments = AppointmentSerializer(many=True, read_only=True)
+    slots = AvailabilitySlotSerializer(many=True, read_only=True)
+    user = UserSerializer(read_only=True)  # استخدام UserSerializer بدل StringRelatedField
 
     class Meta:
         model = Doctor
-        fields = '__all__'
+        fields = [
+            'id', 'user', 'contact_email', 'specialty', 
+            'gender', 'phone', 'bio', 'years_of_experience',
+            'appointments', 'slots'
+        ]
 
 class PatientDetailSerializer(serializers.ModelSerializer):
     user = UserSerializer()
