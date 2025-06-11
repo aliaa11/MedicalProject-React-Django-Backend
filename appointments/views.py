@@ -72,11 +72,7 @@ class PatientAppointmentsView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        try:
-            patient = Patient.objects.get(user=self.request.user)
-            return Appointment.objects.filter(patient=patient)
-        except Patient.DoesNotExist:
-            return Appointment.objects.none()
+        return Appointment.objects.filter(patient__user=self.request.user)
 
 # class UpdateAppointmentStatusView(APIView):
 #     permission_classes = [IsAuthenticated]

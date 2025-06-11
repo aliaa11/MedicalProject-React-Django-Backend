@@ -127,28 +127,87 @@ def login_user(request):
         )
 
     refresh = RefreshToken.for_user(user)
-    
+
     return Response({
         'message': 'تم تسجيل الدخول بنجاح',
         'role': user.role,
         'refresh': str(refresh),
         'access': str(refresh.access_token),
-        'user_id': user.id  # إضافة user_id إذا كنت بحاجته
+        'user_id': user.id,
+        'username': user.username,
+        'email': user.email  # ✅ أضف هذا السطر
     }, status=status.HTTP_200_OK)
+
+@api_view(['POST'])
+def complete_registration(request):
+    user_data = request.data.get('user_data')
+    role = user_data.get('role')
+
+    try:
+        # 1. أنشئ المستخدم
+        user = User.objects.create_user(
+            username=user_data['username'],
+            email=user_data['email'],
+            password=user_data['password'],
+        )
+        user.role = role
+        user.save()
+
+        # 2. أنشئ الملف الشخصي بناءً على الدور
+        if role == 'doctor':
+            doctor_data = request.data.get('doctor_data')
+            specialty = Specialty.objects.get(id=doctor_data['specialty_id'])
+            Doctor.objects.create(
+                user=user,
+                specialty=specialty,
+                gender=doctor_data['gender'],
+                phone=doctor_data['phone'],
+                bio=doctor_data['bio'],
+                contact_email=doctor_data['contact_email'],
+                years_of_experience=doctor_data.get('years_of_experience', 0),
+            )
+        elif role == 'patient':
+            patient_data = request.data.get('patient_data')
+            Patient.objects.create(
+                user=user,
+                gender=patient_data['gender'],
+                date_of_birth=patient_data['date_of_birth'],
+                address=patient_data['address'],
+                phone=patient_data['phone'],
+                disease=patient_data.get('disease', ''),
+                medical_history=patient_data.get('medical_history', ''),
+            )
+
+        return Response({'message': 'Registration completed successfully'}, status=201)
+
+    except Exception as e:
+        # حذف المستخدم إذا فشل أي جزء
+        if user and user.id:
+            user.delete()
+        return Response({'error': str(e)}, status=400)
+
 class PatientProfileView(RetrieveUpdateDestroyAPIView):
     serializer_class = PatientProfileSerializer
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
-        print("Request user:", self.request.user)
         try:
             return Patient.objects.get(user=self.request.user)
         except Patient.DoesNotExist:
-            print("Patient does not exist for this user.")
-            raise NotFound("Patient profile not found.")
+            raise NotFound("Patient profile not found")
 
-
-    
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        
+        response_data = serializer.data
+        response_data['user'] = {
+            'id': request.user.id,
+            'username': request.user.username,
+            'email': request.user.email
+        }
+        
+        return Response(response_data)
     
 class DoctorProfileView(generics.RetrieveAPIView):
     queryset = Doctor.objects.all()
@@ -256,7 +315,7 @@ class DeleteUser(APIView):
 class SpecialtyListView(generics.ListAPIView):
     queryset = Specialty.objects.all()
     serializer_class = SpecialtySerializer
-    permission_classes = [IsRoleAdmin]
+    permission_classes = [AllowAny]
 
 
 # 7. إنشاء تخصص جديد
