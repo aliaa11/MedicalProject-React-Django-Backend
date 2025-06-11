@@ -127,28 +127,39 @@ def login_user(request):
         )
 
     refresh = RefreshToken.for_user(user)
-    
+
     return Response({
         'message': 'تم تسجيل الدخول بنجاح',
         'role': user.role,
         'refresh': str(refresh),
         'access': str(refresh.access_token),
-        'user_id': user.id  # إضافة user_id إذا كنت بحاجته
+        'user_id': user.id,
+        'username': user.username,
+        'email': user.email  # ✅ أضف هذا السطر
     }, status=status.HTTP_200_OK)
+
 class PatientProfileView(RetrieveUpdateDestroyAPIView):
     serializer_class = PatientProfileSerializer
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
-        print("Request user:", self.request.user)
         try:
             return Patient.objects.get(user=self.request.user)
         except Patient.DoesNotExist:
-            print("Patient does not exist for this user.")
-            raise NotFound("Patient profile not found.")
+            raise NotFound("Patient profile not found")
 
-
-    
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        
+        response_data = serializer.data
+        response_data['user'] = {
+            'id': request.user.id,
+            'username': request.user.username,
+            'email': request.user.email
+        }
+        
+        return Response(response_data)
     
 class DoctorProfileView(generics.RetrieveAPIView):
     queryset = Doctor.objects.all()
