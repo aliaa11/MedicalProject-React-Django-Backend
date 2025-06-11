@@ -96,16 +96,15 @@ class UserSerializer(serializers.ModelSerializer):
         read_only_fields = ['date_joined']
 
 
-class DoctorProfileSerializer(serializers.ModelSerializer):
-    appointments = AppointmentSerializer(many=True, read_only=True)
-    slots = AvailabilitySlotSerializer(many=True, read_only=True)
-    user = UserSerializer(read_only=True)  # استخدام UserSerializer بدل StringRelatedField
+# class DoctorProfileSerializer(serializers.ModelSerializer):
+#     appointments = AppointmentSerializer(many=True, read_only=True)
+#     slots = AvailabilitySlotSerializer(many=True, read_only=True)
+#     user = UserSerializer(read_only=True)  # استخدام UserSerializer بدل StringRelatedField
 
-    
+
 class DoctorDetailSerializer(serializers.ModelSerializer):
     user = UserSerializer()
     specialty = serializers.StringRelatedField()
-
     class Meta:
         model = Doctor
         fields = [
