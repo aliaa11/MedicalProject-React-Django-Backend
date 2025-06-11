@@ -33,6 +33,7 @@ class Patient(models.Model):
     medical_history	= models.TextField(blank=True)
     def __str__(self):
         return self.user.username
+            
 class Specialty(models.Model):
     name = models.CharField(max_length=100)
 
