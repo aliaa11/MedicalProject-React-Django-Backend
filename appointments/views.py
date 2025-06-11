@@ -161,4 +161,21 @@ class AppointmentDetailView(generics.RetrieveAPIView):
             return Appointment.objects.filter(doctor=user.doctor)
         elif user.role == 'patient':
             return Appointment.objects.filter(patient=user.patient)
+        return Appointment.objects.none()
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['include_details'] = True  # Add this if you need to conditionally include details
+        return context
+    serializer_class = AppointmentSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.role == 'admin':
+            return Appointment.objects.all()
+        elif user.role == 'doctor':
+            return Appointment.objects.filter(doctor=user.doctor)
+        elif user.role == 'patient':
+            return Appointment.objects.filter(patient=user.patient)
         return Appointment.objects.none()    
