@@ -135,3 +135,30 @@ class UpdateAppointmentStatusView(APIView):
         appointment.status = new_status
         appointment.save()
         return Response({'detail': f'Status updated to {new_status} successfully.'})
+    
+# في views.py
+class DoctorAppointmentsView(generics.ListAPIView):
+    serializer_class = AppointmentSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        if not hasattr(self.request.user, 'doctor'):
+            return Appointment.objects.none()
+        
+        return Appointment.objects.filter(
+            doctor=self.request.user.doctor
+        ).order_by('date', 'time')
+    
+class AppointmentDetailView(generics.RetrieveAPIView):
+    serializer_class = AppointmentSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.role == 'admin':
+            return Appointment.objects.all()
+        elif user.role == 'doctor':
+            return Appointment.objects.filter(doctor=user.doctor)
+        elif user.role == 'patient':
+            return Appointment.objects.filter(patient=user.patient)
+        return Appointment.objects.none()    
