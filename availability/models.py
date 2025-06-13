@@ -9,3 +9,7 @@ class AvailabilitySlot(models.Model):
 
     def __str__(self):
         return f"{self.doctor.user.username} - {self.day} from {self.start_time} to {self.end_time}"
+    
+    
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
