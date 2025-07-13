@@ -12,13 +12,11 @@ class AvailabilitySlotViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        # Get slots only for the logged-in doctor
         if hasattr(self.request.user, 'doctor'):
             return AvailabilitySlot.objects.filter(doctor=self.request.user.doctor)
         return AvailabilitySlot.objects.none()
 
     def perform_create(self, serializer):
-        # Automatically associate the slot with the logged-in doctor
         if hasattr(self.request.user, 'doctor'):
             serializer.save(doctor=self.request.user.doctor)
         else:
